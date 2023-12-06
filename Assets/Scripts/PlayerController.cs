@@ -12,10 +12,13 @@ public class PlayerController : MonoBehaviour
     public float speed = 2.0f;
 
     public Rigidbody playerRb;
+    public Camera firstPersonCam;
+    public Camera thirdPersonCam;
     // Start is called before the first frame update
     void Start()
     {
-        
+        //thirdPersonCam = true;
+        //firstPersonCam = false;
     }
 
     // Update is called once per frame
@@ -28,6 +31,17 @@ public class PlayerController : MonoBehaviour
         verticalInput = Input.GetAxis("Vertical");
         moveDirection = new Vector3(horizontalInput, 0, verticalInput);
 
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            firstPersonCam.enabled = true;
+            thirdPersonCam.enabled = false;
+        }
+
+        if (Input.GetKeyDown(KeyCode.C)) 
+        {
+            thirdPersonCam.enabled= true;
+            firstPersonCam.enabled = false;
+        }
     }
 
     private void FixedUpdate()
