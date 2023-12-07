@@ -1,27 +1,78 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Rendering;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PlayerMovement : MonoBehaviour
-
 {
-    public Transform player;
-    public float speed = 2.0f;
+    public float horizontalInput, verticalInput;
+    public float speed, defaultSpeed = 20.0f;
+    public float sprintSpeed = 40.0f;
+    public float rotateSpeed = 40.0f;
+
+    public Rigidbody playerRb;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        //Generic Methods use <> 
+        playerRb = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        Moveforward(player, speed);
+        GetInput();
+        SetSpeed();
+
+
     }
 
-    private void Moveforward(Transform something, float speed = 3.0f)
+    public void GetInput()
     {
-        something.Translate(something.forward * speed * Time.deltaTime);
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");
+    }
+
+    private void FixedUpdate()
+    {
+        //MoveCarWithForceAndTorque();
+        MoveCarWithPhysicsRotation();
+    }
+
+    private void MoveCarWithForceAndTorque()
+    {
+        if (verticalInput > 0.01f || verticalInput < -0.01f)
+        {
+            playerRb.AddForce(transform.forward * verticalInput * speed); //vertical Input is a number between 0 and 1 
+        }
+
+        if (horizontalInput > 0.01f || horizontalInput < -0.01f)
+        {
+            playerRb.AddTorque(transform.up * horizontalInput * speed);
+        }
+    }
+
+    private void MoveCarWithPhysicsRotation()
+    {
+        //Vector3 moveDirection = new Vector2(horizontalInput, verticalInput); No rotation
+        Vector3 moveDirection = transform.forward * verticalInput;
+        playerRb.MovePosition(playerRb.position + moveDirection * speed * Time.fixedDeltaTime);
+
+         if (verticalInput > 0.01f || verticalInput < -0.01f)
+        {
+            float turnSpeed = horizontalInput * rotateSpeed * Time.fixedDeltaTime;
+            Quaternion turnRotation = Quaternion.Euler(0f, turnSpeed, 0f);
+            playerRb.MoveRotation(playerRb.rotation * turnRotation);
+        }
+       
+    }
+
+    public void SetSpeed()
+    {
+        if (Input.GetKey(KeyCode.LeftShift))
+            speed = sprintSpeed; //no  { if its only one line
+        else
+            speed = defaultSpeed;
     }
 }
