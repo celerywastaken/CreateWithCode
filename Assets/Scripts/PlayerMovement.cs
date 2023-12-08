@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -9,14 +10,18 @@ public class PlayerMovement : MonoBehaviour
     public float speed, defaultSpeed = 20.0f;
     public float sprintSpeed = 40.0f;
     public float rotateSpeed = 40.0f;
-
     public Rigidbody playerRb;
+    
+    public Camera firstPersonCam;
+    public Camera thirdPersonCam;
+    public KeyCode keyCode;
 
     // Start is called before the first frame update
     void Start()
     {
         //Generic Methods use <> 
         playerRb = GetComponent<Rigidbody>();
+
     }
 
     // Update is called once per frame
@@ -24,14 +29,49 @@ public class PlayerMovement : MonoBehaviour
     {
         GetInput();
         SetSpeed();
-
+        SwitchCamsUsingOneKey();
 
     }
 
     public void GetInput()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
+
+        // Horizontal input
+        horizontalInput = (Input.GetKey(KeyCode.A) ? -1f : 0f) + (Input.GetKey(KeyCode.D) ? 1f : 0f);
+
+        // Vertical input
+        verticalInput = (Input.GetKey(KeyCode.W) ? 1f : 0f) + (Input.GetKey(KeyCode.S) ? -1f : 0f);
+
+        //if (Input.GetKeyDown(KeyCode.A))
+        //{
+        //    horizontalInput = -1.0f;
+        //}
+        ////else
+        ////horizontalInput = 0.0f;
+
+        //if (Input.GetKeyDown(KeyCode.D))
+        //{
+        //    horizontalInput = 1.0f;
+        //}
+        ////else
+        //{
+        //    //horizontalInput = 0.0f;
+        //}
+
+        //if (Input.GetKeyDown(KeyCode.W))
+        //{
+        //    verticalInput = 1.0f;
+        //}
+        ////else
+        //{
+        //    //verticalInput=0.0f;
+        //}
+        //if (Input.GetKeyDown(KeyCode.S)) 
+        //{
+        //    verticalInput=-1.0f;
+        //}
+        ////else
+        //    //verticalInput = 0.0f;
     }
 
     private void FixedUpdate()
@@ -39,6 +79,21 @@ public class PlayerMovement : MonoBehaviour
         //MoveCarWithForceAndTorque();
         MoveCarWithPhysicsRotation();
     }
+
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Player2"))
+            other.GetComponent<Rigidbody>().isKinematic = false;
+    }
+
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player2"))
+            other.GetComponent<Rigidbody>().isKinematic = true;
+    }
+
 
     private void MoveCarWithForceAndTorque()
     {
@@ -75,4 +130,18 @@ public class PlayerMovement : MonoBehaviour
         else
             speed = defaultSpeed;
     }
+
+    private void SwitchCamsUsingOneKey()
+    {
+        if (Input.GetKeyDown(keyCode))
+        {
+            thirdPersonCam.enabled = !thirdPersonCam.enabled;
+            firstPersonCam.enabled = !firstPersonCam.enabled;
+        }
+
+    }
+
+   
+
+
 }
